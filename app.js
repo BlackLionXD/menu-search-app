@@ -1,5 +1,3 @@
-
-
 angular.module('NarrowItDownApp',[])
 
 .service('MenuSearchService', ['$http', function($http) {
@@ -12,13 +10,6 @@ angular.module('NarrowItDownApp',[])
             var menuItems = response.data;
             console.log('menuItems',menuItems)
             if (menuItems) {
-                // Loop through menu items and filter based on search term
-                // for (var i = 0; i < menuItems.length; i++) {
-                //     var description = menuItems[i].description;
-                //     if (description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
-                //         foundItems.push(menuItems[i]);
-                //     }
-                // }
                 for (var key in menuItems) {
                     if (menuItems.hasOwnProperty(key)) {
                         var category = menuItems[key];
@@ -32,11 +23,8 @@ angular.module('NarrowItDownApp',[])
                             }
                         }
                         console.log('founditems',foundItems);
-
                     }
-
                 }
-                
             }
             console.log('foundItems',foundItems);
             return foundItems;
@@ -52,18 +40,39 @@ angular.module('NarrowItDownApp',[])
 })
 
 .controller('NarrowItDownController',['$scope','MenuSearchService', function($scope,MenuSearchService){
-        $scope.searchValue = '';
-        $scope.foundItems = [];
-        $scope.searchMenuItem = function() {
-            MenuSearchService.getMatchedMenuItems($scope.searchValue)
-            .then(function(foundItems) {
-                $scope.foundItems = foundItems;
-            });
+    $scope.searchValue = '';
+    $scope.foundItems = [];
+    $scope.errorMessage = '';
+    $scope.isAlert = false
+    $scope.searchMenuItem = function() {
+        if ($scope.searchValue.trim() === '') {
+            $scope.foundItems = [];
+            $scope.errorMessage = 'Nothing found';
+            $scope.isAlert = true
+            return;
         }
-        $scope.removeItem = function(index) {
-            $scope.foundItems.splice(index, 1);
-        };
+
+        MenuSearchService.getMatchedMenuItems($scope.searchValue)
+        .then(function(foundItems) {
+            $scope.foundItems = foundItems;
+            if ($scope.foundItems.length === 0) {
+                $scope.isAlert = true;
+                $scope.errorMessage = 'Nothing found';
+            } else {
+                $scope.errorMessage = '';
+            }
+        })
+        .catch(function(error) {
+            console.error('Error fetching menu items:', error);
+            $scope.errorMessage = 'Error fetching menu items';
+        });
+    };
+
+    $scope.removeItem = function(index) {
+        $scope.foundItems.splice(index, 1);
+    };
 }])
+
 .directive('foundItems', function() {
     return {
         restrict: 'E',
