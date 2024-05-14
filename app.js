@@ -1,8 +1,11 @@
 
-"use strict";
 
-var app = angular.module('rootModule',[]);
+angular.module('NarrowItDownApp',[])
 
-app.controller('helloController',($scope)=>{
+.controller('helloController',($scope)=>{
     $scope.message = 'Hello World';
-});
+})
+
+.controller('NarrowItDownController',['$scope', function($scope){
+        $scope.searchValue = '';
+}])
